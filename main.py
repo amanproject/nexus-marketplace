@@ -110,8 +110,11 @@ class LoginRequest(SQLModel):
     username: str
     password: str
 
-sqlite_url = "sqlite:///shop.db"
-engine = create_engine(sqlite_url)
+# Pull the Neon Cloud Database URL from the hidden .env vault
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Build the cloud engine.
+engine = create_engine(DATABASE_URL)
 SQLModel.metadata.create_all(engine)
 
 app = FastAPI()
