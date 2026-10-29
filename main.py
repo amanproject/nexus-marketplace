@@ -28,24 +28,10 @@ MY_APP_PASSWORD = os.getenv("MY_APP_PASSWORD")
 ALGORITHM = "HS256"
 
 def send_otp_email(receiver_email: str, otp_code: str):
-    msg = EmailMessage()
-    msg.set_content(f"Welcome to the Store!\n\nYour secret verification code is: {otp_code}\n\nDo not share this with anyone.")
-    msg['Subject'] = 'Your Store Verification Code'
-    msg['From'] = MY_EMAIL
-    msg['To'] = receiver_email
-
-    # Connect to Google's secure servers and fire the email
-    try:
-        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(MY_EMAIL, MY_APP_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print(f"Success: OTP sent to {receiver_email}")
-    except Exception as e:
-        print(f"Failed to send email: {e}", flush=True)
-        print("*" * 50, flush=True)
-        print(f"DEVELOPER FALLBACK - OTP FOR {receiver_email} IS: {otp_code}", flush=True)
-        print("*" * 50, flush=True)
+    # Bypass SMTP connection entirely to prevent the 60-second cloud timeout
+    print("*" * 50, flush=True)
+    print(f"DEVELOPER FALLBACK - OTP FOR {receiver_email} IS: {otp_code}", flush=True)
+    print("*" * 50, flush=True)
 
 # Set up the Bcrypt hashing engine
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
