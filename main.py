@@ -42,10 +42,10 @@ def send_otp_email(receiver_email: str, otp_code: str):
         server.quit()
         print(f"Success: OTP sent to {receiver_email}")
     except Exception as e:
-        print(f"Failed to send email: {e}")
-        print("*" * 50)
-        print(f"DEVELOPER FALLBACK - OTP FOR {receiver_email} IS: {otp_code}")
-        print("*" * 50)
+        print(f"Failed to send email: {e}", flush=True)
+        print("*" * 50, flush=True)
+        print(f"DEVELOPER FALLBACK - OTP FOR {receiver_email} IS: {otp_code}", flush=True)
+        print("*" * 50, flush=True)
 
 # Set up the Bcrypt hashing engine
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
