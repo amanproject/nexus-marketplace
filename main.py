@@ -1,4 +1,7 @@
 import os
+import requests
+
+import os
 from dotenv import load_dotenv
 
 # Load the hidden .env file
@@ -26,12 +29,31 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 MY_EMAIL = os.getenv("MY_EMAIL")
 MY_APP_PASSWORD = os.getenv("MY_APP_PASSWORD")
 ALGORITHM = "HS256"
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
 def send_otp_email(receiver_email: str, otp_code: str):
-    # Bypass SMTP connection entirely to prevent the 60-second cloud timeout
-    print("*" * 50, flush=True)
-    print(f"DEVELOPER FALLBACK - OTP FOR {receiver_email} IS: {otp_code}", flush=True)
-    print("*" * 50, flush=True)
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json"
+    }
+    payload = {
+        "sender": {"name": "Nexus Marketplace", "email": MY_EMAIL},
+        "to": [{"email": receiver_email}],
+        "subject": "Your Registration OTP - Nexus Marketplace",
+        "htmlContent": f"<html><body><h3>Welcome to Nexus Marketplace!</h3><p>Your verification code is: <strong>{otp_code}</strong></p></body></html>"
+    }
+
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        response.raise_for_status()
+        print(f"Success: OTP sent to {receiver_email} via Brevo API!", flush=True)
+    except Exception as e:
+        print(f"Brevo API Error: {e}", flush=True)
+        print("*" * 50, flush=True)
+        print(f"DEVELOPER FALLBACK - OTP FOR {receiver_email} IS: {otp_code}", flush=True)
+        print("*" * 50, flush=True)
 
 # Set up the Bcrypt hashing engine
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
