@@ -7,3 +7,4 @@ python-dotenv
 slowapi
 psycopg2-binary
 PyJWT
+bcrypt==4.0.1
