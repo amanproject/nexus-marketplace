@@ -6,3 +6,4 @@ passlib[bcrypt]
 python-dotenv
 slowapi
 psycopg2-binary
+PyJWT
