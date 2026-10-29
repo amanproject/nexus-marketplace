@@ -114,7 +114,7 @@ class LoginRequest(SQLModel):
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Build the cloud engine.
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 SQLModel.metadata.create_all(engine)
 
 app = FastAPI()
