@@ -3,71 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Commerce | Portal</title>
+    <title>Nexus Marketplace | Official Store</title>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
-            --bg-base: #090d16;
-            --bg-card: rgba(18, 26, 43, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.08);
-            --accent-primary: #3b82f6;
-            --accent-buyer: #10b981;
-            --accent-seller: #8b5cf6;
-            --accent-admin: #ef4444;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --card-radius: 16px;
+            /* Minimog Inspired Light Retail Palette */
+            --bg-base: #f9f9f8;
+            --bg-card: #ffffff;
+            --bg-hero: #f3f1ec;
+            --border-light: #e4e4e7;
+            --theme-green: #1b4d3e;
+            --theme-green-hover: #143a2f;
+            --theme-sage: #eaf1ed;
+            --accent-buyer: #1b4d3e;
+            --accent-seller: #0f766e;
+            --accent-admin: #dc2626;
+            --text-main: #18181b;
+            --text-muted: #64748b;
+            --card-radius: 12px;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 12px 24px rgba(0, 0, 0, 0.07);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         body {
             background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Top Navigation */
+        /* Top Announcement Bar */
+        .announcement-bar {
+            background-color: var(--theme-green);
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.55rem 1.5rem;
+        }
+
+        .announcement-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* Main Retail Navigation */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.25rem 2.5rem;
-            border-bottom: 1px solid var(--border-glass);
-            backdrop-filter: blur(12px);
-            background: rgba(9, 13, 22, 0.8);
+            padding: 1rem 2.5rem;
+            border-bottom: 1px solid var(--border-light);
+            background: #ffffff;
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .brand {
-            font-size: 1.35rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #60a5fa, #c084fc);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--theme-green);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .nav-links li {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-links li:hover {
+            color: var(--theme-green);
         }
 
         .nav-status {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.85rem;
         }
 
         .role-badge {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-transform: uppercase;
             padding: 0.35rem 0.75rem;
             border-radius: 999px;
@@ -75,157 +120,302 @@
             letter-spacing: 0.05em;
         }
 
-        .badge-buyer { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-seller { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
-        .badge-admin { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-buyer { background: var(--theme-sage); color: var(--theme-green); border: 1px solid #cce0d6; }
+        .badge-seller { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-admin { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
 
         .btn-logout {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-glass);
+            background: #ffffff;
+            border: 1px solid var(--border-light);
             color: var(--text-main);
-            padding: 0.5rem 1rem;
+            padding: 0.45rem 0.95rem;
             border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
         }
 
         .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
         }
 
         /* Container & Grid Structure */
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2.5rem 1.5rem;
+            padding: 2rem 1.5rem;
             width: 100%;
             flex: 1;
         }
 
-        /* Authentication Gate Screen */
+        /* Hero Showcase Banner */
+        .hero-banner {
+            background-color: var(--bg-hero);
+            border-radius: 16px;
+            padding: 3rem 2.5rem;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 2rem;
+            border: 1px solid #e7e5df;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            background: #ffffff;
+            color: var(--text-main);
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .hero-banner h1 {
+            font-size: 2.4rem;
+            line-height: 1.2;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1rem;
+        }
+
+        .hero-banner h1 span {
+            color: var(--theme-green);
+        }
+
+        .hero-banner p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .trust-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.75rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.07);
+        }
+
+        .trust-item {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .trust-item i {
+            font-size: 1.25rem;
+            color: var(--theme-green);
+        }
+
+        /* Shop By Category Strip */
+        .category-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0 2.5rem;
+            text-align: center;
+        }
+
+        .category-item {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1rem 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .category-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+            border-color: var(--theme-green);
+        }
+
+        .category-circle {
+            width: 54px;
+            height: 54px;
+            background: var(--bg-hero);
+            color: var(--theme-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.6rem;
+            font-size: 1.35rem;
+        }
+
+        .category-item span {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Authentication Gate Screen (Clean Retail Layout) */
         #auth-view {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 75vh;
+            gap: 1.5rem;
         }
 
         .auth-card {
             background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
             border-radius: var(--card-radius);
-            padding: 2.5rem;
+            padding: 2.25rem;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            margin: 0 auto;
+            box-shadow: var(--shadow-md);
         }
 
         .auth-card h2 {
-            font-size: 1.5rem;
+            font-size: 1.45rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
             text-align: center;
         }
 
         .auth-card p {
             color: var(--text-muted);
             font-size: 0.875rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             text-align: center;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 1.25rem;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
         }
 
         .input-group label {
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--text-muted);
+            color: var(--text-main);
         }
 
         input, select {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border-glass);
+            background: #ffffff;
+            border: 1px solid var(--border-light);
             color: var(--text-main);
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            padding: 0.75rem 0.95rem;
+            border-radius: 8px;
+            font-size: 0.92rem;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         input:focus, select:focus {
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+            border-color: var(--theme-green);
+            box-shadow: 0 0 0 3px rgba(27, 77, 62, 0.12);
         }
 
         .btn-submit {
-            background: linear-gradient(135deg, #2563eb, #3b82f6);
-            color: #fff;
+            background: var(--theme-green);
+            color: #ffffff;
             padding: 0.85rem;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
+            font-size: 0.95rem;
             border: none;
             cursor: pointer;
             width: 100%;
-            margin-top: 0.5rem;
-            transition: opacity 0.2s, transform 0.1s;
+            margin-top: 0.4rem;
+            transition: background-color 0.2s, transform 0.1s;
         }
 
-        .btn-submit:hover { opacity: 0.95; }
-        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:hover { background: var(--theme-green-hover); }
+        .btn-submit:active { transform: scale(0.99); }
 
         /* General Dashboard Layouts */
         .dashboard-header {
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .dashboard-header h1 {
-            font-size: 1.85rem;
+            font-size: 1.75rem;
             font-weight: 700;
-            margin-bottom: 0.25rem;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
         }
 
         .glass-panel {
             background: var(--bg-card);
-            border: 1px solid var(--border-glass);
-            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-light);
             border-radius: var(--card-radius);
-            padding: 1.5rem;
+            padding: 1.75rem;
             margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
         }
 
         /* Product Catalog Grid */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 1.5rem;
-            margin-top: 1.5rem;
+            margin-top: 1.25rem;
         }
 
         .product-card {
             background: var(--bg-card);
-            border: 1px solid var(--border-glass);
+            border: 1px solid var(--border-light);
             border-radius: var(--card-radius);
             padding: 1.25rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             position: relative;
-            transition: transform 0.2s, border-color 0.2s;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .product-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-md);
+        }
+
+        .product-thumb {
+            height: 140px;
+            background: var(--bg-hero);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--theme-green);
+            font-size: 2.25rem;
+            position: relative;
+        }
+
+        .sale-pill {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--theme-green);
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            text-transform: uppercase;
         }
 
         .price-row {
@@ -236,9 +426,9 @@
         }
 
         .current-price {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: #38bdf8;
+            color: var(--theme-green);
         }
 
         .mrp-strike {
@@ -249,12 +439,13 @@
 
         .stock-tag {
             font-size: 0.75rem;
-            padding: 0.2rem 0.5rem;
+            font-weight: 600;
+            padding: 0.25rem 0.6rem;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
+            background: var(--theme-sage);
+            color: var(--theme-green);
             width: fit-content;
-            margin-bottom: 1rem;
+            margin-bottom: 0.65rem;
         }
 
         .card-actions {
@@ -264,7 +455,7 @@
 
         .btn-action {
             flex: 1;
-            padding: 0.6rem;
+            padding: 0.65rem;
             border-radius: 8px;
             border: none;
             font-size: 0.85rem;
@@ -273,28 +464,32 @@
             transition: all 0.2s;
         }
 
-        .btn-cart { background: var(--accent-buyer); color: #fff; }
-        .btn-cart:hover { opacity: 0.9; }
+        .btn-cart { background: var(--theme-green); color: #fff; }
+        .btn-cart:hover { background: var(--theme-green-hover); }
 
-        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .btn-danger:hover { background: var(--accent-admin); color: #fff; }
+        .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #dc2626; color: #fff; }
 
-        /* Cart Floating/Fixed Drawer */
+        /* Cart Summary Bar */
         .cart-wrapper {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 1.25rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: #ffffff;
+            border: 1px solid #cce0d6;
+            border-left: 5px solid var(--theme-green);
+            padding: 1.25rem 1.5rem;
             border-radius: var(--card-radius);
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
+            box-shadow: var(--shadow-sm);
         }
 
         /* Form Layouts */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
             gap: 1rem;
             margin-bottom: 1.25rem;
         }
@@ -308,8 +503,8 @@
         }
 
         th, td {
-            padding: 0.85rem;
-            border-bottom: 1px solid var(--border-glass);
+            padding: 0.9rem;
+            border-bottom: 1px solid var(--border-light);
             font-size: 0.9rem;
         }
 
@@ -317,27 +512,38 @@
             color: var(--text-muted);
             text-transform: uppercase;
             font-size: 0.75rem;
+            font-weight: 700;
             letter-spacing: 0.05em;
+            background: var(--bg-base);
+        }
+
+        /* Footer */
+        footer {
+            background: #ffffff;
+            border-top: 1px solid var(--border-light);
+            padding: 2rem 1.5rem;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
         }
 
         .hidden { display: none !important; }
 
-    /* --- MODERN UI UPGRADES --- */
-        
-        /* Smooth Fade-In Animation for all views */
+        /* Smooth Fade-In Animation */
         .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+            animation: fadeIn 0.35s ease-out forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* Toast Notification System */
         #toast-container {
             position: fixed;
-            top: 80px;
+            top: 85px;
             right: 20px;
             z-index: 9999;
             display: flex;
@@ -346,133 +552,233 @@
         }
 
         .toast {
-            min-width: 250px;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(10px);
-            border-left: 4px solid var(--accent-primary);
-            color: white;
-            font-weight: 500;
-            font-size: 0.9rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            min-width: 260px;
+            padding: 0.95rem 1.25rem;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--theme-green);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 0.88rem;
+            box-shadow: var(--shadow-md);
             transform: translateX(120%);
             animation: slideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
         .toast.success { border-left-color: #10b981; }
         .toast.error { border-left-color: #ef4444; }
-        .toast.info { border-left-color: #3b82f6; }
+        .toast.info { border-left-color: var(--theme-green); }
 
         .toast.fade-out {
             animation: slideOut 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
         }
 
-        @keyframes slideIn {
-            to { transform: translateX(0); }
-        }
-        @keyframes slideOut {
-            to { transform: translateX(120%); opacity: 0; }
-        }
+        @keyframes slideIn { to { transform: translateX(0); } }
+        @keyframes slideOut { to { transform: translateX(120%); opacity: 0; } }
 
+        @media (max-width: 850px) {
+            .hero-banner { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+            .nav-links { display: none; }
+            nav { padding: 1rem 1.25rem; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- Top Retail Announcement Bar -->
+    <div class="announcement-bar">
+        <div class="announcement-inner">
+            <span><i class="bi bi-truck"></i> Free Express Shipping on Orders Over ₹499</span>
+            <span><i class="bi bi-shield-check"></i> 30-Day Money Back Guarantee</span>
+            <span><i class="bi bi-star-fill" style="color: #fbbf24;"></i> Rated 4.9/5 by Verified Shoppers</span>
+        </div>
+    </div>
+
     <!-- Header Navigation -->
     <nav>
-        <div class="brand">NEXUS MARKETPLACE</div>
+        <div class="brand">
+            <i class="bi bi-bag-check-fill"></i> NEXUS STORE
+        </div>
+        <ul class="nav-links">
+            <li>Home</li>
+            <li>Shop Collection</li>
+            <li>Trending</li>
+            <li>Customer Care</li>
+        </ul>
         <div id="nav-user-panel" class="nav-status hidden">
             <span id="nav-username" style="font-weight: 600;"></span>
             <span id="nav-role" class="role-badge"></span>
             <button class="btn-logout" onclick="logout()">Sign Out</button>
         </div>
-        <!-- Toast Notifications Container -->
-    
     </nav>
+
+    <!-- Toast Notifications Container -->
     <div id="toast-container"></div>
 
     <div class="container">
 
-        <!-- 1. AUTH GATE (Multi-State View) -->
+        <!-- 1. AUTH GATE (Storefront Welcome + Multi-State Auth Card) -->
         <section id="auth-view">
-            <div class="auth-card">
-                
-                <!-- LOGIN STATE -->
-                <div id="state-login">
-                    <h2>Portal Access</h2>
-                    <p>Authenticate to access your assigned workstation</p>
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="login-user" placeholder="e.g. buyer_aman">
+            <div class="hero-banner">
+                <div>
+                    <span class="hero-tag">✨ NEW SEASON ARRIVALS</span>
+                    <h1>Elevate Your Lifestyle with <span>Premium Products</span></h1>
+                    <p>Discover carefully curated essentials designed for everyday quality, verified authenticity, and doorstep comfort.</p>
+                    <div class="trust-strip">
+                        <div class="trust-item"><i class="bi bi-box-seam"></i> Fast Delivery</div>
+                        <div class="trust-item"><i class="bi bi-arrow-repeat"></i> Easy 30-Day Returns</div>
+                        <div class="trust-item"><i class="bi bi-lock-fill"></i> 100% Secure Checkout</div>
                     </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="login-pass" placeholder="••••••••">
-                    </div>
-                    <button class="btn-submit" onclick="executeLogin()">Access Workspace</button>
-                    <p style="text-align: center; margin-top: 1rem; cursor: pointer; color: var(--accent-primary); font-size: 0.85rem;" onclick="switchAuthState('register')">New personnel? Request access here.</p>
                 </div>
 
-                <!-- REGISTER STATE -->
-                <div id="state-register" class="hidden">
-                    <h2>Create Identity</h2>
-                    <p>Register for marketplace access</p>
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="reg-user" placeholder="Choose a username">
+                <!-- Clean White Auth Card -->
+                <div class="auth-card">
+                    <!-- LOGIN STATE -->
+                    <div id="state-login">
+                        <h2>Welcome Back</h2>
+                        <p>Sign in to shop, track orders, or manage inventory</p>
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" id="login-user" placeholder="e.g. buyer_aman">
+                        </div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="login-pass" placeholder="••••••••">
+                        </div>
+                        <button class="btn-submit" onclick="executeLogin()">Sign In to Store</button>
+                        <p style="text-align: center; margin-top: 1.15rem; margin-bottom: 0; cursor: pointer; color: var(--theme-green); font-weight: 600; font-size: 0.85rem;" onclick="switchAuthState('register')">
+                            New customer? Create an account →
+                        </p>
                     </div>
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" id="reg-email" placeholder="Where we send your OTP">
-                    </div>
-                    <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="reg-pass" placeholder="Create strong password">
-                    </div>
-                    <button class="btn-submit" onclick="executeRegister()">Generate Identity</button>
-                    <p style="text-align: center; margin-top: 1rem; cursor: pointer; color: var(--text-muted); font-size: 0.85rem;" onclick="switchAuthState('login')">Back to Login</p>
-                </div>
 
-                <!-- OTP VERIFY STATE -->
-                <div id="state-verify" class="hidden">
-                    <h2>Verify Identity</h2>
-                    <p style="color: #10b981;">OTP sent! Check your email inbox.</p>
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="verify-user" placeholder="Confirm your username" readonly style="opacity: 0.7;">
+                    <!-- REGISTER STATE -->
+                    <div id="state-register" class="hidden">
+                        <h2>Create Account</h2>
+                        <p>Register for instant access to Nexus Store</p>
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" id="reg-user" placeholder="Choose a username">
+                        </div>
+                        <div class="input-group">
+                            <label>Email Address</label>
+                            <input type="email" id="reg-email" placeholder="We will send your verification code here">
+                        </div>
+                        <div class="input-group">
+                            <label>Password</label>
+                            <input type="password" id="reg-pass" placeholder="Create a strong password">
+                        </div>
+                        <button class="btn-submit" onclick="executeRegister()">Create Account</button>
+                        <p style="text-align: center; margin-top: 1.15rem; margin-bottom: 0; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.85rem;" onclick="switchAuthState('login')">
+                            ← Back to Sign In
+                        </p>
                     </div>
-                    <div class="input-group">
-                        <label>6-Digit OTP Code</label>
-                        <input type="text" id="verify-otp" placeholder="Enter code here">
-                    </div>
-                    <button class="btn-submit" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="executeVerify()">Verify & Unlock Account</button>
-                </div>
 
+                    <!-- OTP VERIFY STATE -->
+                    <div id="state-verify" class="hidden">
+                        <h2>Verify Your Email</h2>
+                        <p style="color: var(--theme-green); font-weight: 600;">Verification code sent! Please check your email inbox.</p>
+                        <div class="input-group">
+                            <label>Username</label>
+                            <input type="text" id="verify-user" placeholder="Confirm your username" readonly style="background: #f4f4f5; color: var(--text-muted);">
+                        </div>
+                        <div class="input-group">
+                            <label>6-Digit Verification Code (OTP)</label>
+                            <input type="text" id="verify-otp" placeholder="Enter 6-digit code">
+                        </div>
+                        <button class="btn-submit" onclick="executeVerify()">Verify & Activate Account</button>
+                        <p style="text-align: center; margin-top: 1rem; margin-bottom: 0; cursor: pointer; color: var(--text-muted); font-size: 0.82rem;" onclick="switchAuthState('login')">
+                            ← Back to Sign In
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Preview on Landing Page -->
+            <div class="category-row">
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-smartwatch"></i></div>
+                    <span>Watches</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-bag-heart"></i></div>
+                    <span>Fashion Bags</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-laptop"></i></div>
+                    <span>Electronics</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-sunglasses"></i></div>
+                    <span>Accessories</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-house-heart"></i></div>
+                    <span>Home Living</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-stars"></i></div>
+                    <span>Personal Care</span>
+                </div>
             </div>
         </section>
 
         <!-- 2. BUYER WORKSPACE -->
         <section id="buyer-workspace" class="hidden">
             <div class="dashboard-header">
-                <h1>Buyer Storefront</h1>
-                <p style="color: var(--text-muted);">Browse catalog, track discounts, and manage orders.</p>
+                <div>
+                    <h1>Featured Collection</h1>
+                    <p style="color: var(--text-muted);">Explore verified products with instant savings and doorstep delivery.</p>
+                </div>
             </div>
 
-            <!-- Cart Bar -->
+            <!-- Category Icons for Shoppers -->
+            <div class="category-row">
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-smartwatch"></i></div>
+                    <span>Watches</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-bag-heart"></i></div>
+                    <span>Bags</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-laptop"></i></div>
+                    <span>Electronics</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-sunglasses"></i></div>
+                    <span>Accessories</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-house-heart"></i></div>
+                    <span>Home Living</span>
+                </div>
+                <div class="category-item">
+                    <div class="category-circle"><i class="bi bi-stars"></i></div>
+                    <span>Beauty</span>
+                </div>
+            </div>
+
+            <!-- Shopping Cart Summary Bar -->
             <div class="cart-wrapper">
-                <div>
-                    <h3 style="color: #34d399;">Cart Manifest</h3>
-                    <p id="cart-item-count" style="font-size: 0.85rem; color: var(--text-muted);">0 items selected</p>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="category-circle" style="margin: 0; width: 46px; height: 46px;">
+                        <i class="bi bi-cart3"></i>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--text-main); font-size: 1.05rem;">Your Shopping Bag</h3>
+                        <p id="cart-item-count" style="font-size: 0.85rem; color: var(--text-muted);">0 items selected</p>
+                    </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1.5rem;">
-                    <div style="font-size: 1.25rem; font-weight: 700;">Total: ₹<span id="cart-total-val">0</span></div>
-                    <button class="btn-action btn-cart" onclick="executeCheckout()" style="padding: 0.7rem 1.4rem;">Checkout Order</button>
+                    <div style="font-size: 1.25rem; font-weight: 700; color: var(--theme-green);">Total: ₹<span id="cart-total-val">0</span></div>
+                    <button class="btn-action btn-cart" onclick="executeCheckout()" style="padding: 0.75rem 1.5rem;">Proceed to Checkout →</button>
                 </div>
             </div>
 
             <!-- Search Field -->
-            <input type="text" id="buyer-search" placeholder="Filter catalog dynamically..." onkeyup="filterCatalog(this.value)" style="width: 100%; margin-bottom: 1rem;">
+            <input type="text" id="buyer-search" placeholder="🔍 Search products by name..." onkeyup="filterCatalog(this.value)" style="width: 100%; margin-bottom: 1rem;">
 
             <!-- Product Display Area -->
             <div id="buyer-catalog" class="product-grid"></div>
@@ -481,49 +787,53 @@
         <!-- 3. SELLER WORKSPACE -->
         <section id="seller-workspace" class="hidden">
             <div class="dashboard-header">
-                <h1>Seller Inventory Control</h1>
-                <p style="color: var(--text-muted);">Publish listings, update stock levels, and audit item margins.</p>
+                <div>
+                    <h1>Seller Studio & Inventory</h1>
+                    <p style="color: var(--text-muted);">Add new products, manage retail pricing, and update live stock counts.</p>
+                </div>
             </div>
 
             <!-- Product Creation Engine -->
             <div class="glass-panel">
-                <h3 style="margin-bottom: 1.25rem;">Dispatch New Listing</h3>
+                <h3 style="margin-bottom: 1rem; font-size: 1.15rem;"><i class="bi bi-plus-circle-fill" style="color: var(--theme-green);"></i> Publish New Product Listing</h3>
                 <div class="form-grid">
                     <input type="text" id="p-name" placeholder="Product Title">
                     <input type="number" id="p-price" placeholder="Selling Price (₹)" oninput="autoDiscount()">
-                    <input type="number" id="p-mrp" placeholder="MRP (₹)" oninput="autoDiscount()">
+                    <input type="number" id="p-mrp" placeholder="Original MRP (₹)" oninput="autoDiscount()">
                     <input type="number" id="p-discount" placeholder="Discount Amount (₹)">
                     <input type="number" id="p-stock" placeholder="Initial Stock Quantity">
                 </div>
-                <button class="btn-submit" onclick="dispatchProduct()" style="max-width: 200px;">Publish Listing</button>
+                <button class="btn-submit" onclick="dispatchProduct()" style="max-width: 220px;">Publish to Storefront</button>
             </div>
 
-            <h3 style="margin-bottom: 1rem;">Active Inventory Portfolio</h3>
+            <h3 style="margin-bottom: 0.75rem;">Your Active Listings</h3>
             <div id="seller-catalog" class="product-grid"></div>
         </section>
 
         <!-- 4. ADMIN WORKSPACE -->
         <section id="admin-workspace" class="hidden">
             <div class="dashboard-header">
-                <h1 style="color: #f87171;">System Administration Console</h1>
-                <p style="color: var(--text-muted);">Direct database oversight, catalog governance, and entity control.</p>
+                <div>
+                    <h1>Store Administration Console</h1>
+                    <p style="color: var(--text-muted);">Oversee marketplace listings and manage registered customer & seller accounts.</p>
+                </div>
             </div>
 
             <!-- Catalog Governance -->
             <div class="glass-panel">
-                <h3>Global Marketplace Listings</h3>
+                <h3>All Storefront Listings</h3>
                 <div id="admin-catalog" class="product-grid"></div>
             </div>
 
             <!-- Entity Management -->
-            <div class="glass-panel">
-                <h3>Registered User Registry</h3>
+            <div class="glass-panel" style="overflow-x: auto;">
+                <h3>Registered Accounts Directory</h3>
                 <table>
                     <thead>
                         <tr>
                             <th>User ID</th>
                             <th>Username</th>
-                            <th>EMAIL</th>
+                            <th>Email</th>
                             <th>Assigned Role</th>
                             <th>Actions</th>
                         </tr>
@@ -535,6 +845,10 @@
 
     </div>
 
+    <footer>
+        <p>© 2026 Nexus Marketplace • Verified Quality Products • Secure Encrypted Payments</p>
+    </footer>
+
     <script>
         // Central Application State
         let sessionUser = null;
@@ -543,24 +857,22 @@
         let activeCart = [];
         let totalCost = 0;
 
+        // --- UI NOTIFICATION ENGINE ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
 
-    // --- UI NOTIFICATION ENGINE ---
-    function showToast(message, type = 'info') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
+            container.appendChild(toast);
 
-        container.appendChild(toast);
-        
-        // (the rest of the timeout logic...)
-    }
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
 
-    
-
-        // Unified Authentication Handler
         // --- AUTHENTICATION ENGINE ---
-        
         function switchAuthState(state) {
             document.getElementById('state-login').classList.add('hidden');
             document.getElementById('state-register').classList.add('hidden');
@@ -568,7 +880,7 @@
 
             const activeState = document.getElementById(`state-${state}`);
             activeState.classList.remove('hidden');
-            activeState.classList.add('fade-in'); // Adds smooth animation
+            activeState.classList.add('fade-in');
         }
 
         function executeRegister() {
@@ -584,10 +896,11 @@
             .then(res => res.json())
             .then(data => {
                 if (data.message && data.message.includes("created")) {
-                    document.getElementById('verify-user').value = user; // Auto-fill username
-                    switchAuthState('verify'); // Instantly flip to OTP screen
+                    document.getElementById('verify-user').value = user;
+                    switchAuthState('verify');
+                    showToast("Verification code sent to your email!", "success");
                 } else {
-                    showToast(data.error || "Registration failed. Rate limit exceeded?");
+                    showToast(data.error || "Registration failed. Please check your details.", "error");
                 }
             });
         }
@@ -604,11 +917,11 @@
             .then(res => res.json())
             .then(data => {
                 if (data.message && data.message.includes("successful")) {
-                    showToast("Identity verified! You can now log in.");
+                    showToast("Email verified! You can now sign in.", "success");
                     document.getElementById('login-user').value = user;
                     switchAuthState('login');
                 } else {
-                    showToast(data.error || "Invalid OTP code.");
+                    showToast(data.error || "Invalid verification code.", "error");
                 }
             });
         }
@@ -623,26 +936,25 @@
                 body: JSON.stringify({ username: user, password: pass })
             })
             .then(res => {
-                if (res.status === 429) { throw new Error("Circuit Breaker Tripped: Too many attempts. Wait 1 minute."); }
+                if (res.status === 429) { throw new Error("Too many login attempts. Please wait 1 minute."); }
                 return res.json();
             })
             .then(data => {
                 if (data.message === "Login successful") {
                     sessionUser = user;
                     sessionRole = data.role;
-                    // THE VAULT: Save the JWT badge to the browser memory
                     localStorage.setItem('nexus_badge', data.access_token);
-                    localStorage.setItem('nexus_user', user);      // NEW: Remember username
-                    localStorage.setItem('nexus_role', data.role); // NEW: Remember role
+                    localStorage.setItem('nexus_user', user);
+                    localStorage.setItem('nexus_role', data.role);
                     transitionWorkspace();
                 } else if (data.error && data.error.includes("locked")) {
                     document.getElementById('verify-user').value = user;
                     switchAuthState('verify');
                 } else {
-                    showToast(data.error || "Authentication failed.");
+                    showToast(data.error || "Invalid username or password.", "error");
                 }
             })
-            .catch(err => showToast(err.message));
+            .catch(err => showToast(err.message, "error"));
         }
 
         function updateStock(id) {
@@ -651,14 +963,16 @@
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ new_stock: newStock })
-            }).then(() => pullMarketData()); // Refreshes the screen instantly
+            }).then(() => {
+                showToast("Stock updated!", "success");
+                pullMarketData();
+            });
         }
 
         function autoDiscount() {
             const price = parseInt(document.getElementById('p-price').value) || 0;
             const mrp = parseInt(document.getElementById('p-mrp').value) || 0;
-    
-            // If MRP is higher than the price, automatically calculate and fill the discount box!
+
             if (mrp > price && price > 0) {
                 document.getElementById('p-discount').value = mrp - price;
             }
@@ -671,7 +985,7 @@
             const navRole = document.getElementById('nav-role');
             nav.classList.remove('hidden');
             nav.classList.add('fade-in');
-            
+
             document.getElementById('nav-username').textContent = sessionUser;
             navRole.textContent = sessionRole;
             navRole.className = `role-badge badge-${sessionRole}`;
@@ -685,30 +999,26 @@
             }
 
             targetWorkspace.classList.remove('hidden');
-            targetWorkspace.classList.add('fade-in'); // Adds smooth animation
+            targetWorkspace.classList.add('fade-in');
             pullMarketData();
-            
+
             document.getElementById('toast-container').innerHTML = '';
             showToast(`Welcome back, ${sessionUser}!`, 'success');
         }
 
         function logout() {
-            // 1. Destroy the digital ID badge from the browser's vault!
             localStorage.removeItem('nexus_badge');
-            localStorage.removeItem('nexus_user'); // NEW: Wipe username
-            localStorage.removeItem('nexus_role'); // NEW: Wipe role
-            
-            // 2. Clear the active variables
+            localStorage.removeItem('nexus_user');
+            localStorage.removeItem('nexus_role');
+
             sessionUser = null;
             sessionRole = null;
-            
-            // 3. Show a sleek exit notification
-            showToast("Successfully signed out. Secure connection closed.", "success");
-            
-            // 4. Reload the page after a 1-second delay so they see the notification
+
+            showToast("Signed out successfully.", "success");
+
             setTimeout(() => {
                 location.reload();
-            }, 1000);
+            }, 800);
         }
 
         // Data Management Engine
@@ -739,18 +1049,27 @@
             items.forEach(p => {
                 const card = document.createElement('div');
                 card.className = "product-card";
+                const safeName = p.name.replace(/'/g, "\\'");
+                const hasDiscount = p.mrp > p.price;
+
                 card.innerHTML = `
                     <div>
-                        <div class="stock-tag">Units in Stock: ${p.stock_quantity}</div>
-                        <h3>${p.name}</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Seller: ${p.owner}</p>
+                        <div class="product-thumb">
+                            ${hasDiscount ? `<span class="sale-pill">Sale</span>` : ''}
+                            <i class="bi bi-bag-check"></i>
+                        </div>
+                        <div class="stock-tag">In Stock: ${p.stock_quantity} units</div>
+                        <h3 style="font-size: 1.05rem;">${p.name}</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Sold by: ${p.owner}</p>
                         <div class="price-row">
                             <span class="current-price">₹${p.price}</span>
-                            <span class="mrp-strike">₹${p.mrp}</span>
+                            ${hasDiscount ? `<span class="mrp-strike">₹${p.mrp}</span>` : ''}
                         </div>
                     </div>
                     <div class="card-actions" style="margin-top: 1rem;">
-                        <button class="btn-action btn-cart" onclick="addToCart(${p.id}, '${p.name}', ${p.price})">Add to Order</button>
+                        <button class="btn-action btn-cart" onclick="addToCart(${p.id}, '${safeName}', ${p.price})">
+                            <i class="bi bi-cart-plus"></i> Add to Bag
+                        </button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -762,11 +1081,10 @@
             const container = document.getElementById('seller-catalog');
             container.innerHTML = "";
 
-            // Only display items that belong to the active logged-in seller
             const myItems = items.filter(p => p.owner === sessionUser);
 
             if (myItems.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-muted);">No products registered under your seller account yet.</p>`;
+                container.innerHTML = `<p style="color: var(--text-muted);">No products listed under your seller account yet.</p>`;
                 return;
             }
 
@@ -775,20 +1093,18 @@
                 card.className = "product-card";
                 card.innerHTML = `
                     <div>
-                        <div class="stock-tag">Units: ${p.stock_quantity}</div>
-                        <h3>${p.name}</h3>
+                        <div class="stock-tag">Available Units: ${p.stock_quantity}</div>
+                        <h3 style="font-size: 1.05rem;">${p.name}</h3>
                         <div class="price-row">
                             <span class="current-price">₹${p.price}</span>
                             <span class="mrp-strike">₹${p.mrp}</span>
                         </div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted);">Discount: ₹${p.discount_price}</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Customer Savings: ₹${p.discount_price}</p>
                     </div>
                     <div class="card-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                        <!-- NEW: Manual Stock Override Box and Button -->
-                        <input type="number" id="update-stock-${p.id}" value="${p.stock_quantity}" style="width: 70px; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-glass); background: rgba(15, 23, 42, 0.6); color: white;">
-                        <button class="btn-action" style="background: #3b82f6; color: white;" onclick="updateStock(${p.id})">Set Stock</button>
-                        
-                        <button class="btn-action btn-danger" onclick="deleteProduct(${p.id})">Delist</button>
+                        <input type="number" id="update-stock-${p.id}" value="${p.stock_quantity}" style="width: 75px; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-light); background: #ffffff; color: var(--text-main);">
+                        <button class="btn-action" style="background: var(--theme-green); color: white;" onclick="updateStock(${p.id})">Update</button>
+                        <button class="btn-action btn-danger" onclick="deleteProduct(${p.id})">Remove</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -805,15 +1121,15 @@
                 card.className = "product-card";
                 card.innerHTML = `
                     <div>
-                        <div class="stock-tag">Merchant: ${p.owner} | Stock: ${p.stock_quantity}</div>
-                        <h3>${p.name}</h3>
+                        <div class="stock-tag">Seller: ${p.owner} | Stock: ${p.stock_quantity}</div>
+                        <h3 style="font-size: 1.05rem;">${p.name}</h3>
                         <div class="price-row">
                             <span class="current-price">₹${p.price}</span>
                             <span class="mrp-strike">₹${p.mrp}</span>
                         </div>
                     </div>
                     <div class="card-actions" style="margin-top: 1rem;">
-                        <button class="btn-action btn-danger" onclick="deleteProduct(${p.id})">Revoke Listing</button>
+                        <button class="btn-action btn-danger" onclick="deleteProduct(${p.id})">Remove Listing</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -833,26 +1149,28 @@
 
             fetch('/products', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    // NEW: Attach the digital badge to the HTTP request!
                     'Authorization': 'Bearer ' + localStorage.getItem('nexus_badge')
                 },
                 body: JSON.stringify(payload)
             }).then(() => {
-                // Clear input boxes
                 document.getElementById('p-name').value = '';
                 document.getElementById('p-price').value = '';
                 document.getElementById('p-mrp').value = '';
                 document.getElementById('p-discount').value = '';
                 document.getElementById('p-stock').value = '';
+                showToast("Product published to storefront!", "success");
                 pullMarketData();
             });
         }
 
         function deleteProduct(id) {
             fetch(`/products/${id}`, { method: 'DELETE' })
-                .then(() => pullMarketData());
+                .then(() => {
+                    showToast("Listing removed.", "info");
+                    pullMarketData();
+                });
         }
 
         // Search Engine Filter
@@ -864,37 +1182,35 @@
 
         // Cart Actions
         function addToCart(id, name, price) {
-            activeCart.push({ id: id, name: name }); // Now we memorize the ID!
+            activeCart.push({ id: id, name: name });
             totalCost += price;
             document.getElementById('cart-total-val').textContent = totalCost;
             document.getElementById('cart-item-count').textContent = `${activeCart.length} item(s) selected`;
+            showToast(`${name} added to bag!`, "success");
         }
 
         function executeCheckout() {
             if (activeCart.length === 0) {
-                showToast("Cart is empty.");
+                showToast("Your shopping bag is empty.", "info");
                 return;
             }
-            
-            // Extract just the IDs from the cart to send to the Python Brain
+
             const itemIds = activeCart.map(item => item.id);
-            
+
             fetch('/checkout', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('nexus_badge')
-                 },
+                },
                 body: JSON.stringify(itemIds)
             }).then(() => {
-                showToast(`Order verified and processed for ₹${totalCost}.`);
+                showToast(`Order confirmed for ₹${totalCost}!`, "success");
                 activeCart = [];
                 totalCost = 0;
                 document.getElementById('cart-total-val').textContent = "0";
                 document.getElementById('cart-item-count').textContent = "0 items selected";
-                
-                // Reload the products so the buyer instantly sees the new lower stock numbers!
-                pullMarketData(); 
+                pullMarketData();
             });
         }
 
@@ -909,11 +1225,11 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td>#${u.id}</td>
-                            <td>${u.username}</td>
+                            <td style="font-weight: 600;">${u.username}</td>
                             <td style="color: var(--text-muted); font-size: 0.85rem;">${u.email}</td>
                             <td><span class="role-badge badge-${u.role}">${u.role}</span></td>
                             <td>
-                                ${u.role !== 'admin' ? `<button class="btn-action btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="removeUser(${u.id})">Terminate</button>` : `<span style="color: var(--text-muted); font-size: 0.8rem;">Protected</span>`}
+                                ${u.role !== 'admin' ? `<button class="btn-action btn-danger" style="padding: 0.35rem 0.7rem; font-size: 0.75rem; width: auto;" onclick="removeUser(${u.id})">Remove</button>` : `<span style="color: var(--text-muted); font-size: 0.8rem;">Protected</span>`}
                             </td>
                         `;
                         tbody.appendChild(row);
@@ -925,13 +1241,12 @@
             fetch(`/users/${id}`, { method: 'DELETE' })
                 .then(() => refreshUserRegistry());
         }
+
         // --- AUTO-LOGIN ENGINE (Runs on page refresh) ---
         if (localStorage.getItem('nexus_badge')) {
-            // Restore variables from the vault
             sessionUser = localStorage.getItem('nexus_user');
             sessionRole = localStorage.getItem('nexus_role');
-            // Skip login screen and jump directly to workspace
-            transitionWorkspace(); 
+            transitionWorkspace();
         }
     </script>
 </body>
