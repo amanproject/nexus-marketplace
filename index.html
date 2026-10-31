@@ -1399,28 +1399,72 @@
             document.getElementById('cart-overlay').classList.toggle('show');
         }
 
+        // --- FIX 1: Seller Delete Button ---
+        async function deleteProduct(id) {
+            if (!confirm("Are you sure you want to remove this active listing?")) return;
+            try {
+                const response = await fetch(`/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('nexus_badge') }
+                });
+                if (response.ok) {
+                    showToast("Product removed successfully!", "success");
+                    pullMarketData(); // Instantly refresh seller dashboard
+                } else {
+                    showToast("Failed to delete product.", "error");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- FIX 2: Cart Quantity Logic ---
+        // Helper to update the red cart badge based on TOTAL items
+        function updateCartBadge() {
+            const totalItems = activeCart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-badge').innerText = totalItems;
+        }
+
         function addToCart(id, name, price) {
             const product = cachedProducts.find(p => p.id === id);
             const mrp = product ? product.mrp : price;
             const img = (product && product.image_urls) ? product.image_urls.split(',')[0] : '';
 
-            activeCart.push({ id, name, price, mrp, img });
+            // Check if product is already in the cart
+            const existingItem = activeCart.find(item => item.id === id);
             
-            // NEW: Save to Local Storage
+            if (existingItem) {
+                existingItem.qty += 1; // Increase quantity instead of duplicating
+            } else {
+                activeCart.push({ id, name, price, mrp, img, qty: 1 }); // New item
+            }
+            
             localStorage.setItem('nexus_cart', JSON.stringify(activeCart));
-            
-            document.getElementById('cart-badge').innerText = activeCart.length;
+            updateCartBadge();
             showToast("Added to bag!", "success");
             renderCartSidebar();
         }
 
-        function removeFromCart(index) {
-            activeCart.splice(index, 1);
-            
-            // NEW: Save updated cart to Local Storage
+        // New function to handle the + and - buttons in the cart
+        function updateCartQty(id, delta) {
+            const itemIndex = activeCart.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                activeCart[itemIndex].qty += delta;
+                // If quantity drops to 0, remove the item completely
+                if (activeCart[itemIndex].qty <= 0) {
+                    activeCart.splice(itemIndex, 1);
+                }
+                localStorage.setItem('nexus_cart', JSON.stringify(activeCart));
+                updateCartBadge();
+                renderCartSidebar();
+            }
+        }
+
+        // Full removal using the trash can
+        function removeFromCart(id) {
+            activeCart = activeCart.filter(item => item.id !== id);
             localStorage.setItem('nexus_cart', JSON.stringify(activeCart));
-            
-            document.getElementById('cart-badge').innerText = activeCart.length;
+            updateCartBadge();
             renderCartSidebar();
         }
 
@@ -1442,10 +1486,12 @@
             
             let totalPrice = 0;
             let totalMrp = 0;
+            const totalItems = activeCart.reduce((sum, item) => sum + item.qty, 0);
             
-            activeCart.forEach((item, index) => {
-                totalPrice += item.price;
-                totalMrp += item.mrp;
+            activeCart.forEach((item) => {
+                // Multiply by quantity for the math
+                totalPrice += (item.price * item.qty);
+                totalMrp += (item.mrp * item.qty);
                 
                 const imgHtml = item.img 
                     ? `<img src="${item.img}" style="width: 60px; height: 60px; object-fit: contain; border-radius: 6px;">` 
@@ -1454,17 +1500,25 @@
                 const discount = Math.round(((item.mrp - item.price) / item.mrp) * 100);
                 
                 container.innerHTML += `
-                    <div class="cart-item-card">
+                    <div class="cart-item-card" style="display: flex; gap: 12px; position: relative;">
                         <div style="width: 60px; flex-shrink: 0;">${imgHtml}</div>
                         <div style="flex-grow: 1;">
-                            <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text-main); font-weight: 500;">${item.name}</h4>
-                            <div style="display: flex; align-items: center; gap: 6px;">
+                            <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text-main); font-weight: 500; padding-right: 20px;">${item.name}</h4>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
                                 ${discount > 0 ? `<span style="color: var(--theme-green); font-weight: 600; font-size: 0.85rem;">↓${discount}%</span>` : ''}
                                 <span style="color: var(--text-muted); text-decoration: line-through; font-size: 0.85rem;">${item.mrp.toLocaleString('en-IN')}</span>
                                 <span style="font-weight: 700; font-size: 1rem; color: var(--text-main);">₹${item.price.toLocaleString('en-IN')}</span>
                             </div>
+                            
+                            <!-- New Quantity Control UI -->
+                            <div style="display: inline-flex; align-items: center; border: 1px solid var(--border-light); border-radius: 4px; overflow: hidden;">
+                                <button onclick="updateCartQty(${item.id}, -1)" style="background: #f9f9f9; border: none; padding: 4px 10px; cursor: pointer; color: var(--text-main); font-weight: bold;">-</button>
+                                <span style="padding: 4px 12px; font-size: 0.9rem; font-weight: 600; background: white;">${item.qty}</span>
+                                <button onclick="updateCartQty(${item.id}, 1)" style="background: #f9f9f9; border: none; padding: 4px 10px; cursor: pointer; color: var(--text-main); font-weight: bold;">+</button>
+                            </div>
                         </div>
-                        <button onclick="removeFromCart(${index})" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 1.1rem;" title="Remove">
+                        
+                        <button onclick="removeFromCart(${item.id})" style="background: none; border: none; color: var(--text-muted); cursor: pointer; position: absolute; top: 10px; right: 10px; padding: 4px; font-size: 1.1rem;" title="Remove Completely">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
@@ -1473,7 +1527,8 @@
             
             const totalDiscount = totalMrp - totalPrice;
             
-            document.getElementById('cart-count-text').innerText = activeCart.length;
+            // Inject formatting into the UI
+            document.getElementById('cart-count-text').innerText = totalItems;
             document.getElementById('cart-mrp-total').innerText = '₹' + totalMrp.toLocaleString('en-IN');
             document.getElementById('cart-discount-total').innerText = '- ₹' + totalDiscount.toLocaleString('en-IN');
             document.getElementById('cart-final-total').innerText = '₹' + totalPrice.toLocaleString('en-IN');
@@ -1520,7 +1575,7 @@
         // --- INITIALIZE CART UI ON LOAD ---
         window.addEventListener('DOMContentLoaded', () => {
             if (activeCart.length > 0) {
-                document.getElementById('cart-badge').innerText = activeCart.length;
+                updateCartBadge();
                 renderCartSidebar();
             }
         });

@@ -107,6 +107,7 @@ class CartItem(BaseModel):
     price: int
     mrp: int
     img: str
+    qty: int = 1
 
 class CheckoutPayload(BaseModel):
     buyer_email: str
@@ -315,21 +316,21 @@ def update_stock(product_id: int, request: StockUpdate):
 @app.post("/checkout")
 def process_checkout(payload: CheckoutPayload):
     with Session(engine) as session:
-        # 1. Calculate order math
-        total_price = sum(item.price for item in payload.cart_items)
-        total_mrp = sum(item.mrp for item in payload.cart_items)
+        # 1. Math updated to multiply by quantity
+        total_price = sum(item.price * item.qty for item in payload.cart_items)
+        total_mrp = sum(item.mrp * item.qty for item in payload.cart_items)
         total_discount = total_mrp - total_price
 
-        # 2. Deduct stock from the database
+        # 2. Deduct exact quantity from stock
         for item in payload.cart_items:
             product = session.get(Product, item.id)
-            if product and product.stock_quantity > 0:
-                product.stock_quantity -= 1
+            if product and product.stock_quantity >= item.qty:
+                product.stock_quantity -= item.qty
                 session.add(product)
         
         session.commit()
 
-        # 3. Generate the dynamic product list for the email
+        # 3. Dynamic email items (now with Commas and Dynamic Qty)
         items_html = ""
         for item in payload.cart_items:
             items_html += f"""
@@ -339,15 +340,15 @@ def process_checkout(payload: CheckoutPayload):
                 </td>
                 <td style="padding: 15px 10px; border-bottom: 1px solid #2a2a2a;">
                     <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ffffff;">{item.name}</p>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #a1a1aa;">Qty: 1</p>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #a1a1aa;">Qty: {item.qty}</p>
                 </td>
                 <td style="padding: 15px 0; border-bottom: 1px solid #2a2a2a; text-align: right;">
-                    <p style="margin: 0; font-size: 14px; color: #ffffff;">₹{item.price}</p>
+                    <p style="margin: 0; font-size: 14px; color: #ffffff;">₹{(item.price * item.qty):,}</p>
                 </td>
             </tr>
             """
 
-        # 4. Build the Dark Theme Receipt HTML (Neuro Style)
+        # 4. Email HTML (Using :, formatting for commas)
         email_html = f"""
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #ffffff; padding: 30px 20px; max-width: 500px; margin: 0 auto; border-radius: 12px;">
             <h2 style="color: #ffffff; margin-top: 0; margin-bottom: 5px; font-size: 22px;">Thank you for your order!</h2>
@@ -363,11 +364,11 @@ def process_checkout(payload: CheckoutPayload):
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
                         <td style="padding: 6px 0; color: #a1a1aa;">Subtotal</td>
-                        <td style="padding: 6px 0; text-align: right; color: #ffffff;">₹{total_mrp}</td>
+                        <td style="padding: 6px 0; text-align: right; color: #ffffff;">₹{total_mrp:,}</td>
                     </tr>
                     <tr>
                         <td style="padding: 6px 0; color: #a1a1aa;">Order discount</td>
-                        <td style="padding: 6px 0; text-align: right; color: #10b981;">- ₹{total_discount}</td>
+                        <td style="padding: 6px 0; text-align: right; color: #10b981;">- ₹{total_discount:,}</td>
                     </tr>
                     <tr>
                         <td style="padding: 6px 0; color: #a1a1aa;">Shipping</td>
@@ -375,11 +376,11 @@ def process_checkout(payload: CheckoutPayload):
                     </tr>
                     <tr>
                         <td style="padding: 15px 0 5px 0; border-top: 1px solid #2a2a2a; font-size: 18px; font-weight: 600; color: #ffffff; margin-top: 10px;">Total</td>
-                        <td style="padding: 15px 0 5px 0; border-top: 1px solid #2a2a2a; font-size: 18px; font-weight: 600; text-align: right; color: #ffffff; margin-top: 10px;">₹{total_price}</td>
+                        <td style="padding: 15px 0 5px 0; border-top: 1px solid #2a2a2a; font-size: 18px; font-weight: 600; text-align: right; color: #ffffff; margin-top: 10px;">₹{total_price:,}</td>
                     </tr>
                     <tr>
                         <td colspan="2" style="text-align: right; padding-top: 4px; font-size: 13px; color: #a1a1aa;">
-                            You saved ₹{total_discount}
+                            You saved ₹{total_discount:,}
                         </td>
                     </tr>
                 </table>
@@ -387,24 +388,16 @@ def process_checkout(payload: CheckoutPayload):
         </div>
         """
 
-        # 5. Send via Brevo API (using your existing environment variables!)
+        # 5. Send via Brevo API
         brevo_url = "https://api.brevo.com/v3/smtp/email"
-        headers = {
-            "accept": "application/json",
-            "api-key": BREVO_API_KEY,
-            "content-type": "application/json"
-        }
-        
+        headers = { "accept": "application/json", "api-key": BREVO_API_KEY, "content-type": "application/json" }
         brevo_payload = {
             "sender": {"name": "Nexus Store", "email": MY_EMAIL},
             "to": [{"email": payload.buyer_email}],
             "subject": "Order Confirmed - Thank you for shopping!",
             "htmlContent": email_html
         }
-        
-        try:
-            requests.post(brevo_url, headers=headers, json=brevo_payload)
-        except Exception as e:
-            print("Email sending failed:", e)
+        try: requests.post(brevo_url, headers=headers, json=brevo_payload)
+        except Exception as e: print("Email failed:", e)
 
-        return {"status": "success", "message": "Checkout complete and receipt sent!"}
+        return {"status": "success", "message": "Checkout complete"}
