@@ -44,6 +44,140 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* --- CART SIDEBAR (Nexus Brand UI) --- */
+        .cart-nav-btn { 
+            position: relative; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            margin-right: 14px; 
+            font-weight: 500; 
+            color: var(--text-main); 
+            text-decoration: none; 
+            transition: color 0.2s ease;
+        }
+        .cart-nav-btn:hover { color: var(--theme-green); }
+
+        .cart-badge { 
+            position: absolute; 
+            top: -6px; 
+            right: -10px; 
+            background: var(--theme-green); 
+            color: white; 
+            font-size: 0.7rem; 
+            font-weight: 700; 
+            border-radius: 999px; 
+            padding: 2px 6px; 
+            min-width: 18px; 
+            text-align: center; 
+        }
+
+        .cart-sidebar { 
+            position: fixed; 
+            top: 0; 
+            right: -420px; 
+            width: 390px; 
+            max-width: 92vw; 
+            height: 100vh; 
+            background: #ffffff; 
+            z-index: 1000; 
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: -6px 0 24px rgba(0,0,0,0.08); 
+            border-left: 1px solid var(--border-light); 
+        }
+        .cart-sidebar.open { right: 0; }
+
+        .cart-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(15, 23, 42, 0.45); 
+            backdrop-filter: blur(2px); 
+            z-index: 999; 
+            display: none; 
+        }
+        .cart-overlay.show { display: block; }
+
+        .cart-header { 
+            padding: 1.1rem 1.25rem; 
+            background: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-bottom: 1px solid var(--border-light); 
+        }
+        .close-cart { 
+            background: transparent; 
+            border: none; 
+            font-size: 1.15rem; 
+            cursor: pointer; 
+            color: var(--text-muted); 
+            padding: 4px;
+        }
+        .close-cart:hover { color: var(--text-main); }
+
+        .cart-items-container { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 1rem; 
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .cart-item-card { 
+            background: #ffffff; 
+            padding: 0.85rem; 
+            border-radius: 10px; 
+            border: 1px solid var(--border-light); 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+            position: relative; 
+        }
+
+        .cart-summary-footer { 
+            background: #fbfbfb; 
+            border-top: 1px solid var(--border-light); 
+            padding: 1.25rem; 
+        }
+        .price-details-box { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.5rem; 
+            margin-bottom: 1rem; 
+        }
+        .price-row-item { 
+            display: flex; 
+            justify-content: space-between; 
+            font-size: 0.92rem; 
+            color: var(--text-main); 
+        }
+
+        .checkout-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding-top: 0.85rem; 
+            border-top: 1px solid var(--border-light); 
+        }
+        .btn-place-order { 
+            background: var(--theme-green); 
+            color: #ffffff; 
+            border: none; 
+            padding: 0.75rem 1.4rem; 
+            font-size: 0.92rem; 
+            font-weight: 600; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: opacity 0.2s ease; 
+        }
+        .btn-place-order:hover { opacity: 0.92; }
+
         /* Top Announcement Bar */
         .announcement-bar {
             background-color: var(--theme-green);
@@ -609,6 +743,13 @@
         <div id="nav-user-panel" class="nav-status hidden">
             <span id="nav-username" style="font-weight: 600;"></span>
             <span id="nav-role" class="role-badge"></span>
+            
+            <!-- Move Cart here (before Sign Out) -->
+            <a onclick="toggleCart()" class="cart-nav-btn">
+                <i class="bi bi-cart3" style="font-size: 1.3rem;"></i> Cart
+                <span id="cart-badge" class="cart-badge">0</span>
+            </a>
+
             <button class="btn-logout" onclick="logout()">Sign Out</button>
         </div>
     </nav>
@@ -1270,37 +1411,85 @@
         }
 
         // Cart Actions
-        function addToCart(id, name, price) {
-            activeCart.push({ id: id, name: name });
-            totalCost += price;
-            document.getElementById('cart-total-val').textContent = totalCost;
-            document.getElementById('cart-item-count').textContent = `${activeCart.length} item(s) selected`;
-            showToast(`${name} added to bag!`, "success");
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('open');
+            document.getElementById('cart-overlay').classList.toggle('show');
         }
 
-        function executeCheckout() {
+        function addToCart(id, name, price) {
+            const product = cachedProducts.find(p => p.id === id);
+            const mrp = product ? product.mrp : price;
+            const img = (product && product.image_urls) ? product.image_urls.split(',')[0] : '';
+
+            activeCart.push({ id, name, price, mrp, img });
+            
+            document.getElementById('cart-badge').innerText = activeCart.length;
+            showToast("Added to bag!", "success");
+            renderCartSidebar();
+        }
+
+        function removeFromCart(index) {
+            activeCart.splice(index, 1);
+            document.getElementById('cart-badge').innerText = activeCart.length;
+            renderCartSidebar();
+        }
+
+        function renderCartSidebar() {
+            const container = document.getElementById('cart-sidebar-items');
+            container.innerHTML = '';
+            
             if (activeCart.length === 0) {
-                showToast("Your shopping bag is empty.", "info");
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+                        <i class="bi bi-bag-x" style="font-size: 2.8rem; display: block; margin-bottom: 0.75rem;"></i>
+                        <p style="font-weight: 500; font-size: 0.95rem; margin: 0;">Your shopping bag is empty</p>
+                    </div>`;
+                document.getElementById('cart-summary-footer').style.display = 'none';
                 return;
             }
-
-            const itemIds = activeCart.map(item => item.id);
-
-            fetch('/checkout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('nexus_badge')
-                },
-                body: JSON.stringify(itemIds)
-            }).then(() => {
-                showToast(`Order confirmed for ₹${totalCost}!`, "success");
-                activeCart = [];
-                totalCost = 0;
-                document.getElementById('cart-total-val').textContent = "0";
-                document.getElementById('cart-item-count').textContent = "0 items selected";
-                pullMarketData();
+            
+            document.getElementById('cart-summary-footer').style.display = 'block';
+            
+            let totalPrice = 0;
+            let totalMrp = 0;
+            
+            activeCart.forEach((item, index) => {
+                totalPrice += item.price;
+                totalMrp += item.mrp;
+                
+                const imgHtml = item.img 
+                    ? `<img src="${item.img}" style="width: 60px; height: 60px; object-fit: contain; border-radius: 6px;">` 
+                    : `<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; border-radius: 6px;"><i class="bi bi-bag" style="font-size: 1.5rem; color: var(--text-muted);"></i></div>`;
+                    
+                const discount = Math.round(((item.mrp - item.price) / item.mrp) * 100);
+                
+                container.innerHTML += `
+                    <div class="cart-item-card">
+                        <div style="width: 60px; flex-shrink: 0;">${imgHtml}</div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; color: var(--text-main); font-weight: 500;">${item.name}</h4>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                ${discount > 0 ? `<span style="color: var(--theme-green); font-weight: 600; font-size: 0.85rem;">↓${discount}%</span>` : ''}
+                                <span style="color: var(--text-muted); text-decoration: line-through; font-size: 0.85rem;">${item.mrp.toLocaleString('en-IN')}</span>
+                                <span style="font-weight: 700; font-size: 1rem; color: var(--text-main);">₹${item.price.toLocaleString('en-IN')}</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart(${index})" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 1.1rem;" title="Remove">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
             });
+            
+            const totalDiscount = totalMrp - totalPrice;
+            
+            document.getElementById('cart-count-text').innerText = activeCart.length;
+            document.getElementById('cart-mrp-total').innerText = '₹' + totalMrp.toLocaleString('en-IN');
+            document.getElementById('cart-discount-total').innerText = '- ₹' + totalDiscount.toLocaleString('en-IN');
+            document.getElementById('cart-final-total').innerText = '₹' + totalPrice.toLocaleString('en-IN');
+            document.getElementById('cart-savings').innerText = '₹' + totalDiscount.toLocaleString('en-IN');
+            document.getElementById('cart-footer-mrp').innerText = '₹' + totalMrp.toLocaleString('en-IN');
+            document.getElementById('cart-footer-total').innerText = '₹' + totalPrice.toLocaleString('en-IN');
         }
 
         // Admin User Directory
@@ -1338,5 +1527,56 @@
             transitionWorkspace();
         }
     </script>
+
+    <!-- CART SIDEBAR & OVERLAY (Nexus Green UI) -->
+    <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                <i class="bi bi-bag-check-fill" style="color: var(--theme-green); font-size: 1.25rem;"></i>
+                <h2 style="margin: 0; font-size: 1.15rem; font-weight: 600; color: var(--text-main);">Shopping Bag</h2>
+            </div>
+            <button class="close-cart" onclick="toggleCart()" aria-label="Close cart">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <!-- Product items injected here -->
+        <div id="cart-sidebar-items" class="cart-items-container"></div>
+        
+        <!-- Price Breakdown & Action Footer -->
+        <div id="cart-summary-footer" class="cart-summary-footer" style="display: none;">
+            <div class="price-details-box">
+                <p style="margin: 0 0 0.5rem 0; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Price Details</p>
+                <div class="price-row-item">
+                    <span>Items (<span id="cart-count-text">0</span>)</span>
+                    <span id="cart-mrp-total">₹0</span>
+                </div>
+                <div class="price-row-item">
+                    <span>Discount</span>
+                    <span id="cart-discount-total" style="color: var(--theme-green); font-weight: 600;">- ₹0</span>
+                </div>
+                <hr style="border: 0; border-top: 1px dashed var(--border-light); margin: 0.6rem 0;">
+                <div class="price-row-item" style="font-weight: 700; font-size: 1.05rem;">
+                    <span>Total Amount</span>
+                    <span id="cart-final-total">₹0</span>
+                </div>
+                <div style="background: rgba(29, 70, 57, 0.08); color: var(--theme-green); padding: 0.6rem; border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.85rem; margin-top: 0.5rem;">
+                    <i class="bi bi-tag-fill" style="margin-right: 4px;"></i> You will save <span id="cart-savings">₹0</span> on this order
+                </div>
+            </div>
+            
+            <div class="checkout-bar">
+                <div>
+                    <div style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85rem;" id="cart-footer-mrp">₹0</div>
+                    <div id="cart-footer-total" style="font-size: 1.3rem; font-weight: 700; color: var(--text-main);">₹0</div>
+                </div>
+                <button class="btn-place-order" onclick="proceedToCheckout()">
+                    Proceed to Checkout <i class="bi bi-arrow-right" style="margin-left: 4px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
 </body>
 </html>
