@@ -1072,11 +1072,17 @@
                 const safeName = p.name.replace(/'/g, "\\'");
                 const hasDiscount = p.mrp > p.price;
 
+                // NEW: Extract image URL and create an HTML image tag
+                const photos = p.image_urls ? p.image_urls.split(',') : [];
+                const mainImg = (photos.length > 0 && photos[0] !== "") 
+                    ? `<img src="${photos[0]}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; padding:0.25rem;">` 
+                    : `<i class="bi bi-bag-check"></i>`;
+
                 card.innerHTML = `
                     <div>
-                        <div class="product-thumb">
+                        <div class="product-thumb" style="background: white; border: 1px solid var(--border-light);">
                             ${hasDiscount ? `<span class="sale-pill">Sale</span>` : ''}
-                            <i class="bi bi-bag-check"></i>
+                            ${mainImg}
                         </div>
                         <div class="stock-tag">In Stock: ${p.stock_quantity} units</div>
                         <h3 style="font-size: 1.05rem;">${p.name}</h3>
@@ -1111,8 +1117,18 @@
             myItems.forEach(p => {
                 const card = document.createElement('div');
                 card.className = "product-card";
+
+                // NEW: Extract image URL and create an HTML image tag
+                const photos = p.image_urls ? p.image_urls.split(',') : [];
+                const mainImg = (photos.length > 0 && photos[0] !== "") 
+                    ? `<img src="${photos[0]}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; padding:0.25rem;">` 
+                    : `<i class="bi bi-bag-check"></i>`;
+
                 card.innerHTML = `
                     <div>
+                        <div class="product-thumb" style="background: white; border: 1px solid var(--border-light); height: 120px;">
+                            ${mainImg}
+                        </div>
                         <div class="stock-tag">Available Units: ${p.stock_quantity}</div>
                         <h3 style="font-size: 1.05rem;">${p.name}</h3>
                         <div class="price-row">
