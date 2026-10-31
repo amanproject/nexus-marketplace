@@ -716,6 +716,73 @@
             .nav-links { display: none; }
             nav { padding: 1rem 1.25rem; }
         }
+
+        /*📱 MOBILE RESPONSIVE DESIGN OVERRIDES */
+        @media (max-width: 768px) {
+            /* 1. Simplify Top Promo Bar: Hide the extra guarantees on small screens */
+            .promo-banner, body > div:first-child { 
+                flex-direction: column !important; 
+                padding: 8px 10px !important;
+                text-align: center !important;
+                gap: 6px !important;
+            }
+            .promo-banner span:nth-child(2),
+            .promo-banner span:nth-child(3),
+            body > div:first-child > span:nth-child(2),
+            body > div:first-child > span:nth-child(3) {
+                display: none !important; 
+            }
+
+            /* 2. Fix the Header: Prevent user profile and cart from overlapping */
+            nav, header {
+                padding: 12px 15px !important;
+                flex-wrap: wrap !important;
+                justify-content: space-between !important;
+            }
+            
+            /* Hide the center text links (Home, Shop, Trending) on mobile to save space */
+            nav > div:nth-child(2), 
+            .nav-links {
+                display: none !important;
+            }
+
+            /* Shrink logo and user controls slightly to fit perfectly */
+            .logo-text, nav h1, nav h2 { font-size: 1.3rem !important; }
+            .user-controls, nav > div:last-child { gap: 10px !important; }
+
+            /* 3. Stack Hero & Login: Move from side-by-side to top-to-bottom */
+            .hero-section, .split-container, .auth-container {
+                flex-direction: column !important;
+                padding: 1.5rem 1rem !important;
+                gap: 1.5rem !important;
+            }
+            .hero-text-box, .login-box, .hero-section > div {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 1.5rem !important;
+            }
+
+            /* 4. Optimize Category Grid: Enforce 2 columns with better spacing */
+            .category-grid, .categories-container {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+                padding: 0 10px !important;
+            }
+
+            /* 5. Optimize Product Grid: Full width cards on mobile */
+            .product-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.25rem !important;
+                padding: 0 10px !important;
+            }
+            
+            /* Ensure the search bar takes full width */
+            input[type="text"] {
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body>
