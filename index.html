@@ -1072,11 +1072,29 @@
                 const safeName = p.name.replace(/'/g, "\\'");
                 const hasDiscount = p.mrp > p.price;
 
-                // NEW: Extract image URL and create an HTML image tag
                 const photos = p.image_urls ? p.image_urls.split(',') : [];
                 const mainImg = (photos.length > 0 && photos[0] !== "") 
                     ? `<img src="${photos[0]}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; padding:0.25rem;">` 
                     : `<i class="bi bi-bag-check"></i>`;
+
+                // NEW: Format numbers with commas (Indian Rupee format)
+                const formattedPrice = p.price.toLocaleString('en-IN');
+                const formattedMrp = p.mrp.toLocaleString('en-IN');
+                
+                // NEW: Generate the Flipkart-style price row
+                let priceHtml = `<div class="price-row" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                    <span style="font-weight: 700; font-size: 1.35rem; color: #212121;">₹${formattedPrice}</span>
+                </div>`;
+
+                if (hasDiscount) {
+                    const discountPercent = Math.round(((p.mrp - p.price) / p.mrp) * 100);
+                    priceHtml = `
+                    <div class="price-row" style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem;">
+                        <span style="color: #388e3c; font-weight: 700; font-size: 1.1rem;">&darr;${discountPercent}%</span>
+                        <span style="color: #878787; text-decoration: line-through; font-size: 1.1rem;">${formattedMrp}</span>
+                        <span style="font-weight: 700; font-size: 1.35rem; color: #212121; margin-left: 0.2rem;">₹${formattedPrice}</span>
+                    </div>`;
+                }
 
                 card.innerHTML = `
                     <div>
@@ -1087,10 +1105,7 @@
                         <div class="stock-tag">In Stock: ${p.stock_quantity} units</div>
                         <h3 style="font-size: 1.05rem;">${p.name}</h3>
                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Sold by: ${p.owner}</p>
-                        <div class="price-row">
-                            <span class="current-price">₹${p.price}</span>
-                            ${hasDiscount ? `<span class="mrp-strike">₹${p.mrp}</span>` : ''}
-                        </div>
+                        ${priceHtml}
                     </div>
                     <div class="card-actions" style="margin-top: 1rem;">
                         <button class="btn-action btn-cart" onclick="addToCart(${p.id}, '${safeName}', ${p.price})">
@@ -1102,7 +1117,6 @@
             });
         }
 
-        // Seller UI Renderer
         function renderSellerCatalog(items) {
             const container = document.getElementById('seller-catalog');
             container.innerHTML = "";
@@ -1117,12 +1131,31 @@
             myItems.forEach(p => {
                 const card = document.createElement('div');
                 card.className = "product-card";
+                const hasDiscount = p.mrp > p.price;
 
-                // NEW: Extract image URL and create an HTML image tag
                 const photos = p.image_urls ? p.image_urls.split(',') : [];
                 const mainImg = (photos.length > 0 && photos[0] !== "") 
                     ? `<img src="${photos[0]}" style="width:100%; height:100%; object-fit:contain; border-radius:8px; padding:0.25rem;">` 
                     : `<i class="bi bi-bag-check"></i>`;
+
+                // NEW: Format numbers with commas (Indian Rupee format)
+                const formattedPrice = p.price.toLocaleString('en-IN');
+                const formattedMrp = p.mrp.toLocaleString('en-IN');
+                
+                // NEW: Generate the Flipkart-style price row
+                let priceHtml = `<div class="price-row" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                    <span style="font-weight: 700; font-size: 1.35rem; color: #212121;">₹${formattedPrice}</span>
+                </div>`;
+
+                if (hasDiscount) {
+                    const discountPercent = Math.round(((p.mrp - p.price) / p.mrp) * 100);
+                    priceHtml = `
+                    <div class="price-row" style="display: flex; align-items: center; gap: 0.4rem; margin-top: 0.5rem;">
+                        <span style="color: #388e3c; font-weight: 700; font-size: 1.1rem;">&darr;${discountPercent}%</span>
+                        <span style="color: #878787; text-decoration: line-through; font-size: 1.1rem;">${formattedMrp}</span>
+                        <span style="font-weight: 700; font-size: 1.35rem; color: #212121; margin-left: 0.2rem;">₹${formattedPrice}</span>
+                    </div>`;
+                }
 
                 card.innerHTML = `
                     <div>
@@ -1131,11 +1164,8 @@
                         </div>
                         <div class="stock-tag">Available Units: ${p.stock_quantity}</div>
                         <h3 style="font-size: 1.05rem;">${p.name}</h3>
-                        <div class="price-row">
-                            <span class="current-price">₹${p.price}</span>
-                            <span class="mrp-strike">₹${p.mrp}</span>
-                        </div>
-                        <p style="font-size: 0.8rem; color: var(--text-muted);">Customer Savings: ₹${p.discount_price}</p>
+                        ${priceHtml}
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Customer Savings: ₹${p.discount_price.toLocaleString('en-IN')}</p>
                     </div>
                     <div class="card-actions" style="margin-top: 1rem; display: flex; gap: 0.5rem;">
                         <input type="number" id="update-stock-${p.id}" value="${p.stock_quantity}" style="width: 75px; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border-light); background: #ffffff; color: var(--text-main);">
