@@ -987,7 +987,7 @@
         let sessionUser = null;
         let sessionRole = null;
         let cachedProducts = [];
-        let activeCart = [];
+        let activeCart = JSON.parse(localStorage.getItem('nexus_cart')) || [];
         let totalCost = 0;
 
         function addImageInput() {
@@ -1406,6 +1406,9 @@
 
             activeCart.push({ id, name, price, mrp, img });
             
+            // NEW: Save to Local Storage
+            localStorage.setItem('nexus_cart', JSON.stringify(activeCart));
+            
             document.getElementById('cart-badge').innerText = activeCart.length;
             showToast("Added to bag!", "success");
             renderCartSidebar();
@@ -1413,6 +1416,10 @@
 
         function removeFromCart(index) {
             activeCart.splice(index, 1);
+            
+            // NEW: Save updated cart to Local Storage
+            localStorage.setItem('nexus_cart', JSON.stringify(activeCart));
+            
             document.getElementById('cart-badge').innerText = activeCart.length;
             renderCartSidebar();
         }
@@ -1509,6 +1516,14 @@
             sessionRole = localStorage.getItem('nexus_role');
             transitionWorkspace();
         }
+
+        // --- INITIALIZE CART UI ON LOAD ---
+        window.addEventListener('DOMContentLoaded', () => {
+            if (activeCart.length > 0) {
+                document.getElementById('cart-badge').innerText = activeCart.length;
+                renderCartSidebar();
+            }
+        });
     </script>
 
     <!-- CART SIDEBAR & OVERLAY (Nexus Green UI) -->
