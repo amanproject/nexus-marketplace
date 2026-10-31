@@ -106,6 +106,7 @@ class Product(SQLModel, table=True):
     mrp: int             
     discount_price: int  
     stock_quantity: int
+    image_urls: str = Field(default="")
 
 class User(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)

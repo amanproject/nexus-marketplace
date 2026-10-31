@@ -803,6 +803,15 @@
                     <input type="number" id="p-discount" placeholder="Discount Amount (₹)">
                     <input type="number" id="p-stock" placeholder="Initial Stock Quantity">
                 </div>
+
+                <!-- Dynamic Image URL Section -->
+                <div id="image-url-container" style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" class="product-img-input" placeholder="Paste Image URL (e.g. https://postimg.cc/photo.jpg)" style="flex-grow: 1;">
+                        <button type="button" style="padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--theme-green); background: transparent; color: var(--theme-green); font-weight: 600; cursor: pointer; white-space: nowrap;" onclick="addImageInput()">+ Add Photo</button>
+                    </div>
+                </div>
+
                 <button class="btn-submit" onclick="dispatchProduct()" style="max-width: 220px;">Publish to Storefront</button>
             </div>
 
@@ -856,6 +865,17 @@
         let cachedProducts = [];
         let activeCart = [];
         let totalCost = 0;
+
+        function addImageInput() {
+        const container = document.getElementById('image-url-container');
+        const newRow = document.createElement('div');
+        newRow.style.cssText = "display: flex; gap: 0.5rem;";
+        newRow.innerHTML = `
+            <input type="text" class="product-img-input" placeholder="Paste another Image URL" style="flex-grow: 1;">
+            <button type="button" style="padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #dc2626; background: #fef2f2; color: #dc2626; font-weight: 600; cursor: pointer; white-space: nowrap;" onclick="this.parentElement.remove()">Remove</button>
+        `;
+        container.appendChild(newRow);
+        }
 
         // --- UI NOTIFICATION ENGINE ---
         function showToast(message, type = 'info') {
@@ -1138,13 +1158,21 @@
 
         // Inventory Management
         function dispatchProduct() {
+            // Collect all image URLs from the dynamic inputs
+            const imgInputs = document.querySelectorAll('.product-img-input');
+            const urls = Array.from(imgInputs)
+                            .map(input => input.value.trim())
+                            .filter(url => url !== ""); // Remove empty ones
+            const imageString = urls.join(','); // Creates "url1.jpg,url2.jpg"
+
             const payload = {
                 name: document.getElementById('p-name').value,
                 price: parseInt(document.getElementById('p-price').value) || 0,
                 owner: sessionUser,
                 mrp: parseInt(document.getElementById('p-mrp').value) || 0,
                 discount_price: parseInt(document.getElementById('p-discount').value) || 0,
-                stock_quantity: parseInt(document.getElementById('p-stock').value) || 0
+                stock_quantity: parseInt(document.getElementById('p-stock').value) || 0,
+                image_urls: imageString // Send the string to FastAPI
             };
 
             fetch('/products', {
@@ -1155,24 +1183,26 @@
                 },
                 body: JSON.stringify(payload)
             }).then(() => {
+                // Clear the form
                 document.getElementById('p-name').value = '';
                 document.getElementById('p-price').value = '';
                 document.getElementById('p-mrp').value = '';
                 document.getElementById('p-discount').value = '';
                 document.getElementById('p-stock').value = '';
+                
+                // Reset image inputs back to just one empty box
+                document.getElementById('image-url-container').innerHTML = `
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" class="product-img-input" placeholder="Paste Image URL (e.g. https://postimg.cc/photo.jpg)" style="flex-grow: 1;">
+                        <button type="button" style="padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--theme-green); background: transparent; color: var(--theme-green); font-weight: 600; cursor: pointer; white-space: nowrap;" onclick="addImageInput()">+ Add Photo</button>
+                    </div>
+                `;
+
                 showToast("Product published to storefront!", "success");
                 pullMarketData();
             });
         }
-
-        function deleteProduct(id) {
-            fetch(`/products/${id}`, { method: 'DELETE' })
-                .then(() => {
-                    showToast("Listing removed.", "info");
-                    pullMarketData();
-                });
-        }
-
+        
         // Search Engine Filter
         function filterCatalog(term) {
             const cleaned = term.toLowerCase();
