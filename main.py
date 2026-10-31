@@ -98,6 +98,20 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+from pydantic import BaseModel
+from typing import List
+
+class CartItem(BaseModel):
+    id: int
+    name: str
+    price: int
+    mrp: int
+    img: str
+
+class CheckoutPayload(BaseModel):
+    buyer_email: str
+    cart_items: List[CartItem]
+    
 class Product(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     name: str
@@ -297,15 +311,100 @@ def update_stock(product_id: int, request: StockUpdate):
             return {"message": "Stock updated successfully"}
         return {"error": "Product not found"}
 
-# 3. CHECKOUT POWER: Receive a list of bought items and reduce their stock by 1
+# 3. CHECKOUT & RECEIPT POWER: Deduct stock and email the Flipkart-style receipt
 @app.post("/checkout")
-def process_checkout(product_ids: list[int]):
+def process_checkout(payload: CheckoutPayload):
     with Session(engine) as session:
-        for pid in product_ids:
-            product = session.get(Product, pid)
-            # Ensure the product exists and actually has stock left before deducting
+        # 1. Calculate order math
+        total_price = sum(item.price for item in payload.cart_items)
+        total_mrp = sum(item.mrp for item in payload.cart_items)
+        total_discount = total_mrp - total_price
+
+        # 2. Deduct stock from the database
+        for item in payload.cart_items:
+            product = session.get(Product, item.id)
             if product and product.stock_quantity > 0:
                 product.stock_quantity -= 1
                 session.add(product)
+        
         session.commit()
-        return {"message": "Inventory deducted"}
+
+        # 3. Generate the dynamic product list for the email
+        items_html = ""
+        for item in payload.cart_items:
+            items_html += f"""
+            <tr>
+                <td style="padding: 15px 0; border-bottom: 1px solid #2a2a2a; width: 70px;">
+                    <img src="{item.img}" style="width: 60px; height: 60px; border-radius: 6px; object-fit: contain; background: white;">
+                </td>
+                <td style="padding: 15px 10px; border-bottom: 1px solid #2a2a2a;">
+                    <p style="margin: 0; font-size: 14px; font-weight: 600; color: #ffffff;">{item.name}</p>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #a1a1aa;">Qty: 1</p>
+                </td>
+                <td style="padding: 15px 0; border-bottom: 1px solid #2a2a2a; text-align: right;">
+                    <p style="margin: 0; font-size: 14px; color: #ffffff;">₹{item.price}</p>
+                </td>
+            </tr>
+            """
+
+        # 4. Build the Dark Theme Receipt HTML (Neuro Style)
+        email_html = f"""
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #121212; color: #ffffff; padding: 30px 20px; max-width: 500px; margin: 0 auto; border-radius: 12px;">
+            <h2 style="color: #ffffff; margin-top: 0; margin-bottom: 5px; font-size: 22px;">Thank you for your order!</h2>
+            <p style="color: #a1a1aa; font-size: 14px; margin-top: 0; margin-bottom: 30px;">We're getting your order ready to be shipped. We will notify you when it has been sent.</p>
+            
+            <h3 style="border-bottom: 1px solid #2a2a2a; padding-bottom: 12px; margin-bottom: 10px; font-size: 16px; font-weight: 500;">Order summary</h3>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                {items_html}
+            </table>
+            
+            <div style="margin-top: 20px; font-size: 14px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 6px 0; color: #a1a1aa;">Subtotal</td>
+                        <td style="padding: 6px 0; text-align: right; color: #ffffff;">₹{total_mrp}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #a1a1aa;">Order discount</td>
+                        <td style="padding: 6px 0; text-align: right; color: #10b981;">- ₹{total_discount}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 0; color: #a1a1aa;">Shipping</td>
+                        <td style="padding: 6px 0; text-align: right; color: #ffffff;">₹0.00</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 15px 0 5px 0; border-top: 1px solid #2a2a2a; font-size: 18px; font-weight: 600; color: #ffffff; margin-top: 10px;">Total</td>
+                        <td style="padding: 15px 0 5px 0; border-top: 1px solid #2a2a2a; font-size: 18px; font-weight: 600; text-align: right; color: #ffffff; margin-top: 10px;">₹{total_price}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: right; padding-top: 4px; font-size: 13px; color: #a1a1aa;">
+                            You saved ₹{total_discount}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        """
+
+        # 5. Send via Brevo API (using your existing environment variables!)
+        brevo_url = "https://api.brevo.com/v3/smtp/email"
+        headers = {
+            "accept": "application/json",
+            "api-key": BREVO_API_KEY,
+            "content-type": "application/json"
+        }
+        
+        brevo_payload = {
+            "sender": {"name": "Nexus Store", "email": MY_EMAIL},
+            "to": [{"email": payload.buyer_email}],
+            "subject": "Order Confirmed - Thank you for shopping!",
+            "htmlContent": email_html
+        }
+        
+        try:
+            requests.post(brevo_url, headers=headers, json=brevo_payload)
+        except Exception as e:
+            print("Email sending failed:", e)
+
+        return {"status": "success", "message": "Checkout complete and receipt sent!"}
