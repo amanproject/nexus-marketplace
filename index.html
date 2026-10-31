@@ -1524,6 +1524,79 @@
                 renderCartSidebar();
             }
         });
+
+        async function proceedToCheckout() {
+            if (activeCart.length === 0) return;
+            
+            // 1. Change the button to a loading state
+            const btn = document.querySelector('.btn-place-order');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 8px;"></span> Processing...`;
+            btn.disabled = true;
+
+            try {
+                // 2. Fetch the current user's email address from the backend
+                const usersRes = await fetch('/users');
+                const users = await usersRes.json();
+                const currentUser = users.find(u => u.username === sessionUser);
+                
+                if (!currentUser || !currentUser.email) {
+                    showToast("Error: Could not locate your email address.", "error");
+                    throw new Error("Missing email");
+                }
+
+                // 3. Prepare the data exactly as FastAPI expects it
+                const payload = {
+                    buyer_email: currentUser.email,
+                    cart_items: activeCart
+                };
+
+                // 4. Send the cart to your new /checkout endpoint
+                const response = await fetch('/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('nexus_badge')
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("Checkout failed on server.");
+
+                // 5. SUCCESS WORKFLOW (Phase 4)
+                // Generate a random Nexus order number
+                const orderNum = "#NEXUS-" + Math.floor(100000 + Math.random() * 900000);
+                document.getElementById('order-ref').innerText = orderNum;
+                
+                // Hide the sliding cart and show the Green Tick Modal
+                document.getElementById('cart-sidebar').classList.remove('open');
+                document.getElementById('cart-overlay').classList.remove('show');
+                document.getElementById('success-modal').style.display = 'flex';
+                
+                // Empty the cart in memory and Local Storage
+                activeCart = [];
+                localStorage.removeItem('nexus_cart');
+                document.getElementById('cart-badge').innerText = '0';
+                renderCartSidebar();
+                
+                // Refresh the storefront so the newly deducted stock numbers appear instantly!
+                pullMarketData();
+
+            } catch (error) {
+                showToast("Checkout Error: Please try again.", "error");
+                console.error(error);
+            } finally {
+                // Restore the button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Closes the success modal when the user clicks "Continue Shopping"
+        function closeSuccessModal() {
+            document.getElementById('success-modal').style.display = 'none';
+        }
+
     </script>
 
     <!-- CART SIDEBAR & OVERLAY (Nexus Green UI) -->
@@ -1573,6 +1646,22 @@
                     Proceed to Checkout <i class="bi bi-arrow-right" style="margin-left: 4px;"></i>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- ORDER SUCCESS MODAL -->
+    <div id="success-modal" class="cart-overlay" style="display: none; align-items: center; justify-content: center; z-index: 10000; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px);">
+        <div style="background: white; padding: 2.5rem 2rem; border-radius: 16px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+            <div style="width: 80px; height: 80px; background: rgba(29, 70, 57, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                <i class="bi bi-check-lg" style="font-size: 3.5rem; color: var(--theme-green); stroke-width: 2px;"></i>
+            </div>
+            <h2 style="margin: 0 0 0.5rem 0; color: var(--text-main); font-size: 1.6rem; font-weight: 700;">Order Confirmed!</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                Your order <strong id="order-ref" style="color: var(--theme-green);"></strong> has been placed successfully. A detailed receipt has been sent to your email.
+            </p>
+            <button onclick="closeSuccessModal()" style="background: var(--theme-green); color: white; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 1rem; transition: opacity 0.2s;">
+                Continue Shopping
+            </button>
         </div>
     </div>
     
