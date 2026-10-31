@@ -1182,7 +1182,16 @@
                     'Authorization': 'Bearer ' + localStorage.getItem('nexus_badge')
                 },
                 body: JSON.stringify(payload)
-            }).then(() => {
+            })
+            .then(async (res) => {
+                // NEW: Actually check if the backend succeeded!
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail || "Server error while saving.");
+                }
+                return res.json();
+            })
+            .then(() => {
                 // Clear the form
                 document.getElementById('p-name').value = '';
                 document.getElementById('p-price').value = '';
@@ -1200,9 +1209,13 @@
 
                 showToast("Product published to storefront!", "success");
                 pullMarketData();
+            })
+            .catch(err => {
+                // Show the actual error so you know what broke!
+                showToast(err.message, "error");
             });
         }
-        
+
         // Search Engine Filter
         function filterCatalog(term) {
             const cleaned = term.toLowerCase();
